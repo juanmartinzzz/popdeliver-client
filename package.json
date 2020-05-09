@@ -1,0 +1,43 @@
+{
+  "version": "1.0.0",
+  "name": "popdeliver-client",
+  "private": true,
+  "dependencies": {
+    "@material-ui/core": "^4.9.12",
+    "@material-ui/icons": "^4.9.1",
+    "firebase": "^7.14.2",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-scripts": "^3.4.1",
+    "styled-components": "^5.1.0"
+  },
+  "devDependencies": {
+    "airtable": "^0.8.1",
+    "compress-images": "^1.7.8"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "npm run fetch-params; npm run compress-images; react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "enable-githooks": "git config core.hooksPath .githooks",
+    "copy-services": "mv src/services /tmp/services; cp -r ../services/src/services src",
+    "fetch-params": "export $(grep -v '^#' .env | xargs); node src/fetchParameters.js",
+    "compress-images": "rm -r /tmp/img.backup; mv public/img /tmp/img.backup; node src/services/imageCompressor/imageCompressor.js"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

@@ -1,0 +1,74 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat|Raleway&display=swap');
+
+html, body, body div, span, object, iframe, h1, h2, h3, h4, h5, h6, 
+p, blockquote, pre, abbr, address, cite, code, del, dfn, em, img, 
+ins, kbd, q, samp, small, strong, sub, sup, var, b, i, dl, dt
+, dd, ol, ul, li, fieldset, form, label, legend, table, caption, 
+tbody, tfoot, thead, tr, th, td, article, aside, figure, footer, 
+header, menu, nav, section, time, mark, audio, video, details, 
+summary {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-size: 100%;
+  font-weight: normal;
+  vertical-align: baseline;
+  background: transparent;
+}
+
+@keyframes slidein {
+  from {
+    margin-left: 85%;
+  }
+  to {
+    margin-left: -85%;
+  }
+}
+
+@keyframes tempRemovePromo {
+  0% {
+    opacity: 0;
+    transform: rotate(-16deg);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(16deg);
+  }
+}
+
+@keyframes motoOut {
+  0% {
+    margin-left: -85%;
+  }
+  75% {
+    margin-left: 45%;
+    transform: rotate(0deg);
+  }
+  100% {
+    margin-left: 85%;
+    transform: rotate(-18deg);
+  }
+}
+
+@keyframes cookingHandLeft {
+  from {
+    transform: rotate(16deg);
+  }
+  to {
+    margin-right: -16px;
+    transform: rotate(-16deg);
+  }
+}
+
+@keyframes cookingHandRight {
+  from {
+    margin-left: -16px;
+    transform: rotate(-10deg) scaleX(-1);
+  }
+  to {
+    transform: rotate(21deg) scaleX(-1);
+  }
+}

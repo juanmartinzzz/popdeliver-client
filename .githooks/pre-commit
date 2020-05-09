@@ -1,0 +1,36 @@
+#!/bin/sh
+
+# Tell git to use this directory for githooks running 
+# git config core.hooksPath .githooks
+# sudo chmod +x .githooks/pre-commit
+# sudo chmod +x bin/format-staged
+
+echo "Running pre-commit githooks, this may take a moment"
+echo "These hooks will:"
+echo " * Check for correct branch"
+echo " * Run the code formatter"
+echo ""
+
+echo "> Checking branch"
+BRANCH=`git rev-parse --abbrev-ref HEAD`
+if [[ "$BRANCH" == "master" || "$BRANCH" == "develop" ]]; then
+  echo "============================="
+  echo "=    You are on $BRANCH.    ="
+  echo "============================="
+  exit 1
+fi
+
+echo "> Running formatter"
+.githooks/format-staged
+code=$?
+if [ "$code" != "0" ]; then
+  echo "============================="
+  echo "=     Formatter failed      ="
+  echo "============================="
+  exit $code
+fi
+
+echo "============================="
+echo "=    Pre-Commit Passed : )  ="
+echo "============================="
+exit 0

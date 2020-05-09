@@ -1,0 +1,15 @@
+{
+  "short_name": "Rolls",
+  "name": "Rolls.co",
+  "display": "standalone",
+  "theme_color": "#464646",
+  "background_color": "#464646",
+  "start_url": "/?utm_source=a2hs",
+  "icons": [
+    {
+      "src": "/android-chrome-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    }
+  ]
+}
