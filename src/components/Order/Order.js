@@ -25,13 +25,6 @@ const steps = [
 
 const Order = ({ storeAndActions }) => {
   const { order } = storeAndActions.store;
-
-  console.log("--order", order);
-
-  if (!orderStatusMap[order.status]) {
-    return null;
-  }
-
   const Icon = orderStatusMap[order.status].icon;
 
   return (

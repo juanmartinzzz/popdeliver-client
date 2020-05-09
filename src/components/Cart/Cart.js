@@ -14,32 +14,24 @@ import Recipient from "./Recipient";
 const Cart = ({ handleConfirmCart, storeAndActions }) => (
   <Dialog open fullScreen TransitionComponent={DialogTransition}>
     <Header
-      title="Tu Pedido"
+      title="Carrito"
       onCloseButtonClick={storeAndActions.cartSetClose}
       hideCloseButton={storeAndActions.store.order.status}
     />
 
     <Content>
-      <PlaceNewOrderButton storeAndActions={storeAndActions} />
-
       <Items storeAndActions={storeAndActions} />
 
-      <PlaceNewOrderButton storeAndActions={storeAndActions} />
+      <Recipient storeAndActions={storeAndActions} />
 
-      {!storeAndActions.store.order.status && (
-        <Fragment>
-          <Recipient storeAndActions={storeAndActions} />
+      <DialogPaper>
+        <DeliveryNotice />
+      </DialogPaper>
 
-          <DialogPaper>
-            <DeliveryNotice />
-          </DialogPaper>
-
-          <ConfirmationButton
-            storeAndActions={storeAndActions}
-            handleConfirmCart={handleConfirmCart}
-          />
-        </Fragment>
-      )}
+      <ConfirmationButton
+        storeAndActions={storeAndActions}
+        handleConfirmCart={handleConfirmCart}
+      />
     </Content>
   </Dialog>
 );

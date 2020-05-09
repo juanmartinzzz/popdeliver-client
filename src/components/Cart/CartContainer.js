@@ -19,17 +19,7 @@ const CartContainer = ({ storeAndActions, firebase }) => {
   };
 
   useEffect(() => {
-    // Listen for Order on Firebase
-    const unsubscribeToListener = firebase.onDocument(
-      "orders",
-      storeAndActions.store.order.idempotencyToken,
-      {
-        onSnapshot: storeAndActions.orderOnFirestoreChange
-      }
-    );
     setCurrentDateAsync();
-
-    return () => unsubscribeToListener();
   }, []);
 
   return (
