@@ -1,13 +1,20 @@
 import React, { useState } from "react";
 import LayoutPage from "./LayoutPage";
-import { getLocalStorageItem } from "../../services/localStorage/localStorage";
+import { getLocalStorageItemV2 } from "../../services/localStorage/localStorage";
 import { getStoreAndActions, initialStateStore } from "../../state/Store";
+import { withFirebase } from "../FirebaseContext";
 
-const LayoutContainer = () => {
-  const storeAndSetStore = useState(getLocalStorageItem("store", initialStateStore));
-  const storeAndActions = getStoreAndActions(storeAndSetStore);
+const LayoutContainer = ({ firebase }) => {
+  const storeAndSetStore = useState(
+    getLocalStorageItemV2({
+      name: "store",
+      defaultValue: initialStateStore,
+      flush: false
+    })
+  );
+  const storeAndActions = getStoreAndActions({ storeAndSetStore, firebase });
 
   return <LayoutPage storeAndActions={storeAndActions} />;
 };
 
-export default LayoutContainer;
+export default withFirebase(LayoutContainer);
