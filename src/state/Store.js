@@ -8,7 +8,7 @@ import {
 } from "../components/Order/orderStatusMap";
 
 export const getInitialStateOrder = () => ({
-  open: false,
+  items: [],
   number: null,
   status: null,
   errors: null,
@@ -19,12 +19,12 @@ export const getInitialStateOrder = () => ({
 export const initialStateStore = {
   cart: {
     items: [],
-    open: false,
     customizingItem: null
   },
   order: getInitialStateOrder(),
   layout: {
     sectionNumber: 0,
+    cartOpen: false,
     deliveryPriceReminderOpen: false,
     outsideServiceHoursNoticeOpen: false
   }
@@ -58,10 +58,19 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
   };
 
   const orderCreateOnFirestore = () => {
-    updateProperty("order", {
-      ...store.order,
-      number: getOrderNumber(new Date()),
-      status: ORDER_STATUS_PENDING
+    updateStoreAndLocalStorage({
+      ...store,
+      order: {
+        ...store.order,
+        items: store.cart.items,
+        number: getOrderNumber(new Date()),
+        status: ORDER_STATUS_PENDING
+      },
+      layout: {
+        ...store.layout,
+        cartOpen: false,
+        deliveryPriceReminderOpen: false
+      }
     });
 
     // const pointEntries = [
@@ -77,8 +86,7 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
         document: store.order.idempotencyToken,
         data: {
           ...store.order,
-          // Reduce data on Cart before saving on Firestore
-          items: store.cart.items,
+          created: new Date("2020-03-20"),
           status: ORDER_STATUS_REQUESTED
         }
       });
@@ -86,13 +94,15 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
   };
 
   const orderReset = () => {
-    // TODO: replace this hack with having an address list per user
-    updateProperty("order", {
-      ...getInitialStateOrder(),
-      recipient: store.order.recipient
+    updateStoreAndLocalStorage({
+      ...store,
+      order: {
+        ...getInitialStateOrder(),
+        // TODO: remove this hack when having a logged user
+        recipient: store.order.recipient
+      },
+      cart: initialStateStore.cart
     });
-
-    updateProperty("cart", initialStateStore.cart);
   };
 
   const orderSetRating = rating => {
@@ -137,20 +147,20 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
     updateProperty("layout", { ...store.layout, sectionNumber });
   };
 
-  /**
-   * Cart actions
-   */
-
-  const cartSetOpen = () => {
-    updateProperty("cart", {
-      ...store.cart,
-      open: store.cart.items.length > 0
+  const layoutSetCartOpen = () => {
+    updateProperty("layout", {
+      ...store.layout,
+      cartOpen: store.cart.items.length > 0
     });
   };
 
-  const cartSetClose = () => {
-    updateProperty("cart", { ...store.cart, open: false });
+  const layoutSetCartClose = () => {
+    updateProperty("layout", { ...store.layout, cartOpen: false });
   };
+
+  /**
+   * Cart actions
+   */
 
   const cartReset = () => {
     updateProperty("cart", initialStateStore.cart);
@@ -159,13 +169,16 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
   const cartRemoveItem = itemToRemove => {
     const items = store.cart.items.filter(item => item.id !== itemToRemove.id);
 
-    if (items.length === 0) {
-      store.cart.open = false;
-    }
-
-    updateProperty("cart", {
-      ...store.cart,
-      items
+    updateStoreAndLocalStorage({
+      ...store,
+      cart: {
+        ...store.cart,
+        items
+      },
+      layout: {
+        ...store.layout,
+        cartOpen: items.length > 0
+      }
     });
   };
 
@@ -201,8 +214,6 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
   return {
     store,
     cartReset,
-    cartSetOpen,
-    cartSetClose,
     cartUpsertItem,
     cartRemoveItem,
     cartSetCustomizingItem,
@@ -215,6 +226,8 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
     orderOnFirestoreChange,
     orderCreateOnFirestore,
 
+    layoutSetCartOpen,
+    layoutSetCartClose,
     layoutSetSectionNumber,
     layoutSetDeliveryPriceReminderOpen,
     layoutSetOutsideServiceHoursNoticeOpen

@@ -25,20 +25,13 @@ const steps = [
 
 const Order = ({ storeAndActions }) => {
   const { order } = storeAndActions.store;
-
-  console.log("--order", order);
-
-  if (!orderStatusMap[order.status]) {
-    return null;
-  }
-
   const Icon = orderStatusMap[order.status].icon;
 
   return (
     <Dialog open fullScreen TransitionComponent={DialogTransition}>
       <Header
         title="Tu Pedido"
-        onCloseButtonClick={storeAndActions.cartSetClose}
+        onCloseButtonClick={storeAndActions.layoutSetCartClose}
         hideCloseButton={order.status}
       />
 

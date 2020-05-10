@@ -4,7 +4,7 @@ import TotalsContainer from "./TotalsContainer";
 
 const Items = ({ storeAndActions }) => (
   <Fragment>
-    {storeAndActions.store.cart.items.map((item, index) => (
+    {storeAndActions.store.order.items.map((item, index) => (
       <Item item={item} key={index} storeAndActions={storeAndActions} />
     ))}
 

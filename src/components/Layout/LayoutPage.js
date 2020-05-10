@@ -1,18 +1,18 @@
 import React, { Fragment } from "react";
+import { CssBaseline } from "@material-ui/core";
 import Header from "./Header";
 import Footer from "./Footer";
 import CartContainer from "../Cart";
-import Sections from "../Sections/Sections";
-import { CssBaseline } from "@material-ui/core";
-import CustomizeItem from "../Cart/CustomizeItem/CustomizeItem";
+import OrderContainer from "../Order";
 import Section from "../Section/Section";
-import OutsideServiceHoursNotice from "../Cart/OutsideServiceHoursNotice/OutsideServiceHoursNotice";
+import Sections from "../Sections/Sections";
+import CustomizeItem from "../Cart/CustomizeItem/CustomizeItem";
 import DeliveryNoticeDialog from "../Cart/DeliveryNotices/DeliveryNoticeDialog";
-import Order from "../Order/Order";
+import OutsideServiceHoursNotice from "../Cart/OutsideServiceHoursNotice/OutsideServiceHoursNotice";
 
 const LayoutPage = ({ storeAndActions }) => (
   <CssBaseline>
-    {!storeAndActions.store.cart.open && (
+    {!storeAndActions.store.layout.cartOpen && (
       <Fragment>
         <Header storeAndActions={storeAndActions} />
 
@@ -23,11 +23,11 @@ const LayoutPage = ({ storeAndActions }) => (
       </Fragment>
     )}
 
-    {storeAndActions.store.cart.open && (
+    {storeAndActions.store.layout.cartOpen && (
       <CartContainer storeAndActions={storeAndActions} />
     )}
 
-    <Order storeAndActions={storeAndActions} />
+    <OrderContainer storeAndActions={storeAndActions} />
 
     <DeliveryNoticeDialog storeAndActions={storeAndActions} />
 
