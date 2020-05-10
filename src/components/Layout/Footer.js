@@ -25,7 +25,7 @@ const Footer = ({ storeAndActions }) => {
 
   return (
     <FixedBottom>
-      <BottomButtonPaper onClick={storeAndActions.cartSetOpen}>
+      <BottomButtonPaper onClick={storeAndActions.layoutSetCartOpen}>
         <Button variant="contained" color="secondary">
           ¡Haz tu pedido!
         </Button>

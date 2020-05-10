@@ -31,7 +31,7 @@ const Order = ({ storeAndActions }) => {
     <Dialog open fullScreen TransitionComponent={DialogTransition}>
       <Header
         title="Tu Pedido"
-        onCloseButtonClick={storeAndActions.cartSetClose}
+        onCloseButtonClick={storeAndActions.layoutSetCartClose}
         hideCloseButton={order.status}
       />
 

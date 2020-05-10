@@ -1,11 +1,9 @@
-import React, { Fragment } from "react";
+import React from "react";
 import { Dialog } from "@material-ui/core";
 import Items from "./Items/Items";
-import Feedback from "./Feedback/Feedback";
 import Header from "../UI/FullscreenDialog/Header";
 import Content from "../UI/FullscreenDialog/Content";
 import ConfirmationButton from "./ConfirmationButton";
-import PlaceNewOrderButton from "./PlaceNewOrderButton";
 import { DialogTransition } from "../components";
 import { DialogPaper } from "../UI/FullscreenDialog/components";
 import DeliveryNotice from "./DeliveryNotices/DeliveryNotice";
@@ -15,7 +13,7 @@ const Cart = ({ handleConfirmCart, storeAndActions }) => (
   <Dialog open fullScreen TransitionComponent={DialogTransition}>
     <Header
       title="Carrito"
-      onCloseButtonClick={storeAndActions.cartSetClose}
+      onCloseButtonClick={storeAndActions.layoutSetCartClose}
       hideCloseButton={storeAndActions.store.order.status}
     />
 

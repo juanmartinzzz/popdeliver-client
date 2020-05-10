@@ -25,7 +25,7 @@ const Totals = ({ email, storeAndActions }) => (
 
           <TableCell align="right">
             <Typography variant="h6" color="secondary">
-              {currency(getTotalCost(storeAndActions.store.cart.items))}
+              {currency(getTotalCost(storeAndActions.store.order.items))}
             </Typography>
           </TableCell>
         </TableRow>
@@ -37,7 +37,7 @@ const Totals = ({ email, storeAndActions }) => (
 
           <TableCell align="right">
             <Typography variant="h6" color="secondary">
-              {getTotalPoints(storeAndActions.store.cart.items) +
+              {getTotalPoints(storeAndActions.store.order.items) +
                 (email && getPoints(email.orders))}
             </Typography>
           </TableCell>

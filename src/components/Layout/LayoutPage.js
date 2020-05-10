@@ -12,7 +12,7 @@ import OutsideServiceHoursNotice from "../Cart/OutsideServiceHoursNotice/Outside
 
 const LayoutPage = ({ storeAndActions }) => (
   <CssBaseline>
-    {!storeAndActions.store.cart.open && (
+    {!storeAndActions.store.layout.cartOpen && (
       <Fragment>
         <Header storeAndActions={storeAndActions} />
 
@@ -23,7 +23,7 @@ const LayoutPage = ({ storeAndActions }) => (
       </Fragment>
     )}
 
-    {storeAndActions.store.cart.open && (
+    {storeAndActions.store.layout.cartOpen && (
       <CartContainer storeAndActions={storeAndActions} />
     )}
 

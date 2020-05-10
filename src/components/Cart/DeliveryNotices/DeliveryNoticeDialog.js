@@ -2,7 +2,6 @@ import React, { Fragment } from "react";
 import { DialogTitleCenter } from "../components";
 import DeliveryNotice from "./DeliveryNotice";
 import { Dialog, Button, DialogActions } from "@material-ui/core";
-import { DialogPaper } from "../../UI/FullscreenDialog/components";
 
 const DeliveryNoticeDialog = ({ storeAndActions }) => (
   <Fragment>
