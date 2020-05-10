@@ -12,9 +12,9 @@ import {
   getTotalCost,
   getTotalPoints
 } from "../../../services/calculations/cart";
-import { getPoints } from "../../../services/calculations/email";
+import { getPoints } from "../../../services/calculations/user";
 
-const Totals = ({ email, storeAndActions }) => (
+const Totals = ({ storeAndActions }) => (
   <DialogPaper>
     <Table size="small">
       <TableBody>
@@ -38,7 +38,7 @@ const Totals = ({ email, storeAndActions }) => (
           <TableCell align="right">
             <Typography variant="h6" color="secondary">
               {getTotalPoints(storeAndActions.store.order.items) +
-                (email && getPoints(email.orders))}
+                getPoints(storeAndActions.store.user.pointEntries)}
             </Typography>
           </TableCell>
         </TableRow>
