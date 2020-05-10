@@ -1,17 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { withFirebase } from "../../FirebaseContext";
-import { fetchEmail } from "../../../services/entities/email";
+import React, { useEffect } from "react";
 import Totals from "./Totals";
 
-const TotalsContainer = ({ storeAndActions, firebase }) => {
-  const { order } = storeAndActions.store;
-  const [email, setEmail] = useState(null);
-
+const TotalsContainer = ({ storeAndActions }) => {
   useEffect(() => {
-    fetchEmail({ emailAddress: order.recipient.email, setEmail, firebase });
+    storeAndActions.userGetFromFirestore();
   }, []);
 
-  return <Totals email={email} storeAndActions={storeAndActions} />;
+  return <Totals storeAndActions={storeAndActions} />;
 };
 
-export default withFirebase(TotalsContainer);
+export default TotalsContainer;

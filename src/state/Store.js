@@ -17,6 +17,13 @@ export const getInitialStateOrder = () => ({
 });
 
 export const initialStateStore = {
+  user: {
+    name: null,
+    email: null,
+    phone: null,
+    orders: [],
+    pointEntries: []
+  },
   cart: {
     items: [],
     customizingItem: null
@@ -40,6 +47,29 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
 
   const updateProperty = (propertyName, value) => {
     updateStoreAndLocalStorage({ ...store, [propertyName]: value });
+  };
+
+  /**
+   * User actions
+   */
+
+  const userGetFromFirestore = async () => {
+    const users = await firebase.getList({
+      path: "users",
+      limit: 1,
+      where: [
+        ["email", "==", store.user.email],
+        ["phone", "==", store.user.phone]
+      ]
+    });
+
+    if (users.length > 0) {
+      updateProperty("user", users[0]);
+    }
+  };
+
+  const userSetOnFirestore = async () => {
+    // TODO:
   };
 
   /**
@@ -217,6 +247,9 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
     cartUpsertItem,
     cartRemoveItem,
     cartSetCustomizingItem,
+
+    userSetOnFirestore,
+    userGetFromFirestore,
 
     orderReset,
     orderSetRating,
