@@ -19,9 +19,11 @@ export const getInitialStateOrder = () => ({
 export const initialStateStore = {
   user: {
     name: null,
-    email: null,
-    phone: null,
+    email: "",
+    phone: "",
     orders: [],
+    address: {},
+    addresses: [],
     pointEntries: []
   },
   cart: {
@@ -32,6 +34,7 @@ export const initialStateStore = {
   layout: {
     sectionNumber: 0,
     cartOpen: false,
+    userOpen: false,
     deliveryPriceReminderOpen: false,
     outsideServiceHoursNoticeOpen: false
   }
@@ -53,23 +56,76 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
    * User actions
    */
 
-  const userGetFromFirestore = async () => {
-    const users = await firebase.getList({
-      path: "users",
-      limit: 1,
-      where: [
-        ["email", "==", store.user.email],
-        ["phone", "==", store.user.phone]
-      ]
-    });
-
-    if (users.length > 0) {
-      updateProperty("user", users[0]);
+  const userOnFirestoreChange = userOnFirestore => {
+    if (userOnFirestore) {
+      updateProperty("user", userOnFirestore);
     }
   };
 
-  const userSetOnFirestore = async () => {
-    // TODO:
+  const userSetPropertyOnFirestore = (propertyName, value) => {
+    const newUser = store.user;
+    delete newUser.address;
+
+    firebase.set({
+      path: "users",
+      document: store.user.id,
+      data: {
+        ...newUser,
+        [propertyName]: value
+      }
+    });
+  };
+
+  const userGetFromFirestore = async () => {
+    const { email, phone } = store.user;
+
+    if (email !== "" && phone !== "") {
+      const users = await firebase.getList({
+        path: "users",
+        limit: 1,
+        where: [
+          ["email", "==", store.user.email],
+          ["phone", "==", store.user.phone]
+        ]
+      });
+
+      if (users.length > 0) {
+        updateProperty("user", users[0]);
+      }
+    }
+  };
+
+  const userSetProperty = propertyName => ({ target }) => {
+    updateProperty("user", {
+      ...store.user,
+      [propertyName]: target.value
+    });
+  };
+
+  const userSetAddressProperty = propertyName => ({ target }) => {
+    updateProperty("user", {
+      ...store.user,
+      address: {
+        ...store.user.address,
+        [propertyName]: target.value
+      }
+    });
+  };
+
+  const userRemoveAddress = indexToRemove => () => {
+    if (store.user.addresses.length > 1) {
+      userSetPropertyOnFirestore(
+        "addresses",
+        store.user.addresses.filter((address, index) => index !== indexToRemove)
+      );
+    }
+  };
+
+  const userAddAddress = () => {
+    userSetPropertyOnFirestore("addresses", [
+      ...store.user.addresses,
+      store.user.address
+    ]);
   };
 
   /**
@@ -78,7 +134,6 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
 
   const orderOnFirestoreChange = orderOnFirebase => {
     if (orderOnFirebase) {
-      // Override local Order with the one on Firestore
       updateProperty("order", orderOnFirebase);
     }
   };
@@ -188,6 +243,14 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
     updateProperty("layout", { ...store.layout, cartOpen: false });
   };
 
+  const layoutSetUserOpen = () => {
+    updateProperty("layout", { ...store.layout, userOpen: true });
+  };
+
+  const layoutSetUserClose = () => {
+    updateProperty("layout", { ...store.layout, userOpen: false });
+  };
+
   /**
    * Cart actions
    */
@@ -248,8 +311,13 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
     cartRemoveItem,
     cartSetCustomizingItem,
 
-    userSetOnFirestore,
+    userAddAddress,
+    userSetProperty,
+    userRemoveAddress,
     userGetFromFirestore,
+    userOnFirestoreChange,
+    userSetAddressProperty,
+    userSetPropertyOnFirestore,
 
     orderReset,
     orderSetRating,
@@ -259,7 +327,9 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
     orderOnFirestoreChange,
     orderCreateOnFirestore,
 
+    layoutSetUserOpen,
     layoutSetCartOpen,
+    layoutSetUserClose,
     layoutSetCartClose,
     layoutSetSectionNumber,
     layoutSetDeliveryPriceReminderOpen,

@@ -9,6 +9,7 @@ import Sections from "../Sections/Sections";
 import CustomizeItem from "../Cart/CustomizeItem/CustomizeItem";
 import DeliveryNoticeDialog from "../Cart/DeliveryNotices/DeliveryNoticeDialog";
 import OutsideServiceHoursNotice from "../Cart/OutsideServiceHoursNotice/OutsideServiceHoursNotice";
+import UserContainer from "../User/UserContainer";
 
 const LayoutPage = ({ storeAndActions }) => (
   <CssBaseline>
@@ -26,6 +27,8 @@ const LayoutPage = ({ storeAndActions }) => (
     {storeAndActions.store.layout.cartOpen && (
       <CartContainer storeAndActions={storeAndActions} />
     )}
+
+    <UserContainer storeAndActions={storeAndActions} />
 
     <OrderContainer storeAndActions={storeAndActions} />
 
