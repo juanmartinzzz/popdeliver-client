@@ -1,19 +1,36 @@
 import { setLocalStorageItem } from "../services/localStorage/localStorage";
 import { getCartItemId } from "./CartItem";
 import { createToken } from "../services/tokenGenerator/tokenGenerator";
-import { getOrderNumber, initialStateRecipient } from "../utils/order";
+import { getOrderNumber } from "../utils/order";
 import {
   ORDER_STATUS_PENDING,
   ORDER_STATUS_REQUESTED
 } from "../components/Order/orderStatusMap";
 
 export const getInitialStateOrder = () => ({
+  idempotencyToken: createToken(),
   items: [],
   number: null,
   status: null,
   errors: null,
-  recipient: initialStateRecipient,
-  idempotencyToken: createToken()
+  user: {
+    name: "",
+    phone: ""
+  },
+  destination: {
+    address: {
+      nickname: "",
+      recipient: "",
+      directions: "",
+      locality: ""
+    },
+    notes: "",
+    addChopsticks: false,
+    addTeriyaki: false,
+    addGinger: false,
+    addWasabi: false,
+    addSoy: false
+  }
 });
 
 export const initialStateStore = {
@@ -62,15 +79,26 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
     }
   };
 
+  const userSetOnFirestore = user => {
+    const cleanUser = user;
+    delete cleanUser.address;
+
+    firebase.set({
+      path: "users",
+      document: store.user.id,
+      data: cleanUser
+    });
+  };
+
   const userSetPropertyOnFirestore = (propertyName, value) => {
-    const newUser = store.user;
-    delete newUser.address;
+    const cleanUser = store.user;
+    delete cleanUser.address;
 
     firebase.set({
       path: "users",
       document: store.user.id,
       data: {
-        ...newUser,
+        ...cleanUser,
         [propertyName]: value
       }
     });
@@ -95,37 +123,40 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
     }
   };
 
-  const userSetProperty = propertyName => ({ target }) => {
+  const userSetProperty = ({ target }) => {
     updateProperty("user", {
       ...store.user,
-      [propertyName]: target.value
+      [target.name]: target.value
     });
   };
 
-  const userSetAddressProperty = propertyName => ({ target }) => {
+  const userSetAddressProperty = ({ target }) => {
     updateProperty("user", {
       ...store.user,
-      address: {
-        ...store.user.address,
-        [propertyName]: target.value
+      newAddress: {
+        ...store.user.newAddress,
+        [target.name]: target.value
       }
     });
   };
 
   const userRemoveAddress = indexToRemove => () => {
     if (store.user.addresses.length > 1) {
-      userSetPropertyOnFirestore(
-        "addresses",
-        store.user.addresses.filter((address, index) => index !== indexToRemove)
-      );
+      userSetOnFirestore({
+        ...store.user,
+        addresses: store.user.addresses.filter(
+          (address, index) => index !== indexToRemove
+        )
+      });
     }
   };
 
   const userAddAddress = () => {
-    userSetPropertyOnFirestore("addresses", [
-      ...store.user.addresses,
-      store.user.address
-    ]);
+    userSetOnFirestore({
+      ...store.user,
+      addresses: [...store.user.addresses, store.user.newAddress],
+      newAddress: {}
+    });
   };
 
   /**
@@ -138,8 +169,32 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
     }
   };
 
-  const orderSetRecipient = recipient => {
-    updateProperty("order", { ...store.order, recipient });
+  const orderSetDestinationAddress = ({ target }) => {
+    const address = store.user.addresses[target.value];
+
+    updateProperty("order", {
+      ...store.order,
+      destination: {
+        ...store.order.destination,
+        addressIndex: target.value,
+        address: address ? address : initialStateStore.order.destination.address
+      }
+    });
+  };
+
+  const orderSetDestinationAddressProperty = ({ target }) => {
+    if (store.order.destination.addressIndex === -1) {
+      updateProperty("order", {
+        ...store.order,
+        destination: {
+          ...store.order.destination,
+          address: {
+            ...store.order.destination.address,
+            [target.name]: target.value
+          }
+        }
+      });
+    }
   };
 
   const orderCreateOnFirestore = () => {
@@ -322,10 +377,11 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
     orderReset,
     orderSetRating,
     orderSetComments,
-    orderSetRecipient,
     orderLocalToFirestore,
     orderOnFirestoreChange,
     orderCreateOnFirestore,
+    orderSetDestinationAddress,
+    orderSetDestinationAddressProperty,
 
     layoutSetUserOpen,
     layoutSetCartOpen,

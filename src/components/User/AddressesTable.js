@@ -17,7 +17,7 @@ const AddressesTable = ({ storeAndActions }) => {
             <TableCell>{address.nickname}</TableCell>
             <TableCell>{address.recipient}</TableCell>
             <TableCell>
-              {address.address}, {address.neighborhood}
+              {address.directions}, {address.locality}
             </TableCell>
             <TableCell align="right">
               <IconButton
