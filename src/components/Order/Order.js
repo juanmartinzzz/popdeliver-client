@@ -15,6 +15,7 @@ import Content from "../UI/FullscreenDialog/Content";
 import Feedback from "../Cart/Feedback/Feedback";
 import Items from "./Items/Items";
 import PlaceNewOrderButton from "../Cart/PlaceNewOrderButton";
+import Totals from "./Items/Totals";
 
 const steps = [
   orderStatusMap[ORDER_STATUS_PENDING].value,
@@ -38,10 +39,13 @@ const Order = ({ storeAndActions }) => {
       <Content>
         <Items storeAndActions={storeAndActions} />
 
+        <Totals storeAndActions={storeAndActions} />
+
         <StepsProgress
           steps={steps}
           current={orderStatusMap[order.status].value}
         />
+
         <DialogTitleCenter>{`${orderStatusMap[order.status].title}`}</DialogTitleCenter>
 
         <DialogContentCenter>

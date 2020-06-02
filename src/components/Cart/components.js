@@ -27,11 +27,6 @@ export const StyledWatchLater = styled(WatchLater)`
   }
 `;
 
-export const InputIconBox = styled.div`
-  margin-left: 12px;
-  color: ${golden};
-`;
-
 export const CartButtonBox = styled(Box)`
   display: flex;
   justify-content: center;

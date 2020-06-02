@@ -10,7 +10,8 @@ const CartContainer = ({ storeAndActions, firebase }) => {
     if (isStoreOpen(currentDate)) {
       storeAndActions.layoutSetDeliveryPriceReminderOpen(true);
     } else {
-      storeAndActions.layoutSetOutsideServiceHoursNoticeOpen(true);
+      storeAndActions.layoutSetDeliveryPriceReminderOpen(true);
+      // storeAndActions.layoutSetOutsideServiceHoursNoticeOpen(true);
     }
   };
 

@@ -1,4 +1,5 @@
 import React from "react";
+import styled from "styled-components";
 import {
   Grid,
   TextField,
@@ -6,9 +7,15 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem
+  MenuItem,
+  Switch,
+  FormControlLabel
 } from "@material-ui/core";
-import { InputIconBox } from "./components";
+import { golden } from "../../theme";
+
+const InputIconBox = styled.div`
+  color: ${golden};
+`;
 
 const TypeSelect = ({ name, value, label, options, emptyOption, onChange }) => (
   <FormControl fullWidth>
@@ -23,16 +30,38 @@ const TypeSelect = ({ name, value, label, options, emptyOption, onChange }) => (
   </FormControl>
 );
 
-const AddressFormFields = ({ inputs }) =>
+const TypeSwitch = ({ name,label, checked, onChange }) => (
+  <FormControlLabel
+    control={
+      <Switch
+        name={name}
+        size="small"
+        checked={checked}
+        onChange={onChange}
+      />
+    }
+    label={label}
+  />
+);
+
+const FormFields = ({ inputs }) =>
   inputs.map(
-    ({ icon, label, name, value, note, options, onChange, onBlur }) => (
+    ({ type, icon, label, name, value, note, checked, options, onChange, onBlur }) => (
       <Grid container key={name}>
         <Grid item xs={1}>
           <InputIconBox>{icon}</InputIconBox>
         </Grid>
 
         <Grid item xs={11}>
-          {options ? (
+          {(checked !== undefined) && (
+            <TypeSwitch
+              name={name}
+              label={label}
+              checked={checked}
+              onChange={onChange}
+            />
+          )}
+          {options && (
             <TypeSelect
               name={name}
               value={value}
@@ -40,7 +69,8 @@ const AddressFormFields = ({ inputs }) =>
               options={options}
               onChange={onChange}
             />
-          ) : (
+          )}
+          { !type && !options && (checked === undefined) && (
             <TextField
               fullWidth
               name={name}
@@ -49,7 +79,8 @@ const AddressFormFields = ({ inputs }) =>
               onChange={onChange}
               onBlur={onBlur}
             />
-          )}
+          )
+          }
         </Grid>
 
         <Grid item xs={12}>
@@ -61,4 +92,4 @@ const AddressFormFields = ({ inputs }) =>
     )
   );
 
-export default AddressFormFields;
+export default FormFields;

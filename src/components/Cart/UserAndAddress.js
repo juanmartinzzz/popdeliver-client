@@ -5,17 +5,15 @@ import Label from "@material-ui/icons/Label";
 import Phone from "@material-ui/icons/Phone";
 import Person from "@material-ui/icons/Person";
 import Explore from "@material-ui/icons/Explore";
-import ChatBubble from "@material-ui/icons/ChatBubble";
-import AddressFormFields from "./AddressFormFields";
+import FormFields from "../UI/FormFields";
 
 const UserAndAddress = ({ storeAndActions }) => {
   const { order, user } = storeAndActions.store;
-  const { address } = order.destination;
+  const { address, addressIndex } = order.destination;
 
   return (
     <Fragment>
-      <AddressFormFields
-        storeAndActions={storeAndActions}
+      <FormFields
         inputs={[
           {
             name: "email",
@@ -39,7 +37,7 @@ const UserAndAddress = ({ storeAndActions }) => {
             name: "addressIndex",
             icon: <Explore />,
             label: "Enviar a",
-            value: order.destination.addressIndex || -1,
+            value: addressIndex,
             options: user.addresses
               .map(({ directions, locality, nickname, recipient }, index) => ({
                 value: index,
@@ -75,14 +73,6 @@ const UserAndAddress = ({ storeAndActions }) => {
             label: "Barrio, conjunto",
             value: address.locality,
             onChange: storeAndActions.orderSetDestinationAddressProperty
-          },
-          {
-            name: "notes",
-            icon: <ChatBubble />,
-            label: "Observaciones",
-            value: order.destination.notes,
-            note: "¿Algo más para que tomemos en cuenta?",
-            onChange: () => alert("notes")
           }
         ]}
       />

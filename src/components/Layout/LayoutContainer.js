@@ -13,6 +13,7 @@ const LayoutContainer = ({ firebase }) => {
     })
   );
   const storeAndActions = getStoreAndActions({ storeAndSetStore, firebase });
+  console.log("--store", storeAndActions.store);
 
   return <LayoutPage storeAndActions={storeAndActions} />;
 };

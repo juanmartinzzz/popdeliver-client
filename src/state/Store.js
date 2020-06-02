@@ -18,18 +18,19 @@ export const getInitialStateOrder = () => ({
     phone: ""
   },
   destination: {
+    addressIndex: -1,
     address: {
       nickname: "",
       recipient: "",
       directions: "",
       locality: ""
     },
-    notes: "",
     addChopsticks: false,
     addTeriyaki: false,
     addGinger: false,
     addWasabi: false,
-    addSoy: false
+    addSoy: false,
+    notes: ""
   }
 });
 
@@ -61,6 +62,8 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
   const [store, setStore] = storeAndSetStore;
 
   const updateStoreAndLocalStorage = store => {
+    console.log("--TESTING-1");
+    console.log("--TESTING-store", store);
     setStore(store);
     setLocalStorageItem("store", store);
   };
@@ -169,6 +172,16 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
     }
   };
 
+  const orderSetDestinationProperty = ({ target }) => {
+    updateProperty("order", {
+      ...store.order,
+      destination: {
+        ...store.order.destination,
+        [target.name]: target.value || target.checked
+      }
+    });
+  };
+
   const orderSetDestinationAddress = ({ target }) => {
     const address = store.user.addresses[target.value];
 
@@ -198,14 +211,23 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
   };
 
   const orderCreateOnFirestore = () => {
+    console.log("--orderCreateOnFirestore");
+    const { email, phone } = store.user;
+    const order = {
+      ...store.order,
+      items: store.cart.items,
+      number: getOrderNumber(new Date()),
+      status: ORDER_STATUS_PENDING,
+      created: new Date("2020-05-31"),
+      user: {
+        email,
+        phone
+      }
+    };
+
     updateStoreAndLocalStorage({
       ...store,
-      order: {
-        ...store.order,
-        items: store.cart.items,
-        number: getOrderNumber(new Date()),
-        status: ORDER_STATUS_PENDING
-      },
+      order,
       layout: {
         ...store.layout,
         cartOpen: false,
@@ -223,10 +245,9 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
     setTimeout(() => {
       firebase.set({
         path: "orders",
-        document: store.order.idempotencyToken,
+        document: order.idempotencyToken,
         data: {
-          ...store.order,
-          created: new Date("2020-03-20"),
+          ...order,
           status: ORDER_STATUS_REQUESTED
         }
       });
@@ -236,11 +257,7 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
   const orderReset = () => {
     updateStoreAndLocalStorage({
       ...store,
-      order: {
-        ...getInitialStateOrder(),
-        // TODO: remove this hack when having a logged user
-        recipient: store.order.recipient
-      },
+      order: getInitialStateOrder(),
       cart: initialStateStore.cart
     });
   };
@@ -381,6 +398,7 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
     orderOnFirestoreChange,
     orderCreateOnFirestore,
     orderSetDestinationAddress,
+    orderSetDestinationProperty,
     orderSetDestinationAddressProperty,
 
     layoutSetUserOpen,
