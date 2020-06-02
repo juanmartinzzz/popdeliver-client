@@ -62,8 +62,6 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
   const [store, setStore] = storeAndSetStore;
 
   const updateStoreAndLocalStorage = store => {
-    console.log("--TESTING-1");
-    console.log("--TESTING-store", store);
     setStore(store);
     setLocalStorageItem("store", store);
   };
@@ -211,7 +209,6 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
   };
 
   const orderCreateOnFirestore = () => {
-    console.log("--orderCreateOnFirestore");
     const { email, phone } = store.user;
     const order = {
       ...store.order,
