@@ -1,4 +1,7 @@
-import { setLocalStorageItem } from "../services/localStorage/localStorage";
+import {
+  getLocalStorageItemV2,
+  setLocalStorageItem,
+} from "../services/localStorage/localStorage";
 import { getCartItemId } from "./CartItem";
 import { createToken } from "../services/tokenGenerator/tokenGenerator";
 import { getOrderNumber } from "../utils/order";
@@ -61,13 +64,15 @@ export const initialStateStore = {
 export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
   const [store, setStore] = storeAndSetStore;
 
+  const getStore = () => getLocalStorageItemV2({ name: "store" });
+
   const updateStoreAndLocalStorage = (store) => {
     setStore(store);
     setLocalStorageItem("store", store);
   };
 
   const updateProperty = (propertyName, value) => {
-    updateStoreAndLocalStorage({ ...store, [propertyName]: value });
+    updateStoreAndLocalStorage({ ...getStore(), [propertyName]: value });
   };
 
   /**
