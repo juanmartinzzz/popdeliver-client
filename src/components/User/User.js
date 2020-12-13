@@ -18,17 +18,19 @@ const User = ({ storeAndActions }) => (
       <Grid container spacing={4}>
         <Grid item xs={6}>
           <TextFieldFullWidth
+            name="email"
             label="Email"
             value={storeAndActions.store.user.email}
-            onChange={storeAndActions.userSetProperty("email")}
+            onChange={storeAndActions.userSetProperty}
           />
         </Grid>
 
         <Grid item xs={6}>
           <TextFieldFullWidth
+            name="phone"
             label="Teléfono"
             value={storeAndActions.store.user.phone}
-            onChange={storeAndActions.userSetProperty("phone")}
+            onChange={storeAndActions.userSetProperty}
           />
         </Grid>
 

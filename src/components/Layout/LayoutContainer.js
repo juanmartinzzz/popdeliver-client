@@ -9,10 +9,12 @@ const LayoutContainer = ({ firebase }) => {
     getLocalStorageItemV2({
       name: "store",
       defaultValue: initialStateStore,
-      flush: false
+      flush: false,
     })
   );
   const storeAndActions = getStoreAndActions({ storeAndSetStore, firebase });
+  console.log("--layout", storeAndActions.store.layout);
+  console.log("--localLayout", JSON.parse(localStorage.store).layout);
 
   return <LayoutPage storeAndActions={storeAndActions} />;
 };

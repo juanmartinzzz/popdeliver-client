@@ -7,7 +7,8 @@ import { selectOrderedObjects } from "../../services/data/selectors";
 import { menuSections } from "../../services/parameters/sectionViews";
 
 const MuiContainer = styled(Container)`
-  padding: 16px 0 80px;
+  padding-top: 16px;
+  padding-bottom: 80px;
 `;
 
 const Section = ({ storeAndActions }) => {

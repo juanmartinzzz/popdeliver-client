@@ -6,38 +6,42 @@ const isAddressComplete = address =>
   address &&
   address.nickname &&
   address.recipient &&
-  address.neighborhood &&
-  address.address;
+  address.locality &&
+  address.directions;
 
 const NewAddress = ({ storeAndActions }) => (
   <Fragment>
     <Grid item xs={4}>
       <TextFieldFullWidth
+        name="nickname"
         label="Lugar"
-        onChange={storeAndActions.userSetAddressProperty("nickname")}
+        onChange={storeAndActions.userSetAddressProperty}
       />
     </Grid>
     <Grid item xs={4}>
       <TextFieldFullWidth
+        name="recipient"
         label="Receptor"
-        onChange={storeAndActions.userSetAddressProperty("recipient")}
+        onChange={storeAndActions.userSetAddressProperty}
       />
     </Grid>
     <Grid item xs={4}>
       <TextFieldFullWidth
+        name="locality"
         label="Barrio"
-        onChange={storeAndActions.userSetAddressProperty("neighborhood")}
+        onChange={storeAndActions.userSetAddressProperty}
       />
     </Grid>
     <Grid item xs={12}>
       <TextFieldFullWidth
-        label="Dirección"
-        onChange={storeAndActions.userSetAddressProperty("address")}
+        name="directions"
+        label="Dirección (con casa o apartamento)"
+        onChange={storeAndActions.userSetAddressProperty}
       />
     </Grid>
 
     <Grid item xs={12}>
-      {isAddressComplete(storeAndActions.store.user.address) ? (
+      {isAddressComplete(storeAndActions.store.user.newAddress) ? (
         <Button
           color="secondary"
           variant="outlined"

@@ -1,37 +1,38 @@
 import React from "react";
 import { Button, Typography } from "@material-ui/core";
 import { CartButtonBox } from "./components";
-import { requiredRecipientFields } from "../../utils/order";
 
-const ConfirmationButton = ({ storeAndActions, handleConfirmCart }) => {
-  const { order } = storeAndActions.store;
+export const requiredFields = ["directions", "recipient", "locality"];
 
-  const recipientInfoComplete = () => {
-    const emptyPropertyKeys = Object.keys(order.recipient).filter(
-      key => requiredRecipientFields.includes(key) && !order.recipient[key]
-    );
+const recipientInfoComplete = ({ address }) => {
+  if (!address) {
+    return false;
+  }
 
-    return emptyPropertyKeys.length <= 0;
-  };
-
-  return (
-    <CartButtonBox>
-      <Button
-        color="secondary"
-        variant="contained"
-        onClick={handleConfirmCart}
-        disabled={!recipientInfoComplete()}
-      >
-        {recipientInfoComplete() ? (
-          "Listo: hacer pedido"
-        ) : (
-          <Typography variant="caption">
-            ¡Por favor llena tus datos primero!
-          </Typography>
-        )}
-      </Button>
-    </CartButtonBox>
+  const emptyPropertyKeys = requiredFields.filter(
+    key => !address[key] || address[key] === ""
   );
+
+  return emptyPropertyKeys.length <= 0;
 };
+
+const ConfirmationButton = ({ storeAndActions, handleConfirmCart }) => (
+  <CartButtonBox>
+    <Button
+      color="secondary"
+      variant="contained"
+      onClick={handleConfirmCart}
+      disabled={!recipientInfoComplete(storeAndActions.store.order.destination)}
+    >
+      {recipientInfoComplete(storeAndActions.store.order.destination) ? (
+        "Listo: hacer pedido"
+      ) : (
+        <Typography variant="caption">
+          ¡Por favor llena tus datos primero!
+        </Typography>
+      )}
+    </Button>
+  </CartButtonBox>
+);
 
 export default ConfirmationButton;

@@ -1,19 +1,37 @@
 import { setLocalStorageItem } from "../services/localStorage/localStorage";
 import { getCartItemId } from "./CartItem";
 import { createToken } from "../services/tokenGenerator/tokenGenerator";
-import { getOrderNumber, initialStateRecipient } from "../utils/order";
+import { getOrderNumber } from "../utils/order";
 import {
   ORDER_STATUS_PENDING,
-  ORDER_STATUS_REQUESTED
+  ORDER_STATUS_REQUESTED,
 } from "../components/Order/orderStatusMap";
 
 export const getInitialStateOrder = () => ({
+  idempotencyToken: createToken(),
   items: [],
   number: null,
   status: null,
   errors: null,
-  recipient: initialStateRecipient,
-  idempotencyToken: createToken()
+  user: {
+    name: "",
+    phone: "",
+  },
+  destination: {
+    addressIndex: -1,
+    address: {
+      nickname: "",
+      recipient: "",
+      directions: "",
+      locality: "",
+    },
+    addChopsticks: false,
+    addTeriyaki: false,
+    addGinger: false,
+    addWasabi: false,
+    addSoy: false,
+    notes: "",
+  },
 });
 
 export const initialStateStore = {
@@ -21,14 +39,14 @@ export const initialStateStore = {
     name: null,
     email: "",
     phone: "",
-    orders: [],
+    orders: {},
     address: {},
     addresses: [],
-    pointEntries: []
+    pointEntries: [],
   },
   cart: {
     items: [],
-    customizingItem: null
+    customizingItem: null,
   },
   order: getInitialStateOrder(),
   layout: {
@@ -36,14 +54,14 @@ export const initialStateStore = {
     cartOpen: false,
     userOpen: false,
     deliveryPriceReminderOpen: false,
-    outsideServiceHoursNoticeOpen: false
-  }
+    outsideServiceHoursNoticeOpen: false,
+  },
 };
 
 export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
   const [store, setStore] = storeAndSetStore;
 
-  const updateStoreAndLocalStorage = store => {
+  const updateStoreAndLocalStorage = (store) => {
     setStore(store);
     setLocalStorageItem("store", store);
   };
@@ -56,23 +74,34 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
    * User actions
    */
 
-  const userOnFirestoreChange = userOnFirestore => {
+  const userOnFirestoreChange = (userOnFirestore) => {
     if (userOnFirestore) {
       updateProperty("user", userOnFirestore);
     }
   };
 
+  const userSetOnFirestore = (user) => {
+    const cleanUser = user;
+    delete cleanUser.address;
+
+    firebase.set({
+      path: "users",
+      document: store.user.id,
+      data: cleanUser,
+    });
+  };
+
   const userSetPropertyOnFirestore = (propertyName, value) => {
-    const newUser = store.user;
-    delete newUser.address;
+    const cleanUser = store.user;
+    delete cleanUser.address;
 
     firebase.set({
       path: "users",
       document: store.user.id,
       data: {
-        ...newUser,
-        [propertyName]: value
-      }
+        ...cleanUser,
+        [propertyName]: value,
+      },
     });
   };
 
@@ -85,123 +114,181 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
         limit: 1,
         where: [
           ["email", "==", store.user.email],
-          ["phone", "==", store.user.phone]
-        ]
+          ["phone", "==", store.user.phone],
+        ],
       });
 
       if (users.length > 0) {
         updateProperty("user", users[0]);
+      } else {
+        updateProperty("user", {
+          ...initialStateStore.user,
+          email,
+          phone,
+        });
       }
     }
   };
 
-  const userSetProperty = propertyName => ({ target }) => {
+  const userSetProperty = ({ target }) => {
     updateProperty("user", {
       ...store.user,
-      [propertyName]: target.value
+      [target.name]: target.value,
     });
   };
 
-  const userSetAddressProperty = propertyName => ({ target }) => {
+  const userSetAddressProperty = ({ target }) => {
     updateProperty("user", {
       ...store.user,
-      address: {
-        ...store.user.address,
-        [propertyName]: target.value
-      }
+      newAddress: {
+        ...store.user.newAddress,
+        [target.name]: target.value,
+      },
     });
   };
 
-  const userRemoveAddress = indexToRemove => () => {
+  const userRemoveAddress = (indexToRemove) => () => {
     if (store.user.addresses.length > 1) {
-      userSetPropertyOnFirestore(
-        "addresses",
-        store.user.addresses.filter((address, index) => index !== indexToRemove)
-      );
+      userSetOnFirestore({
+        ...store.user,
+        addresses: store.user.addresses.filter(
+          (address, index) => index !== indexToRemove
+        ),
+      });
     }
   };
 
   const userAddAddress = () => {
-    userSetPropertyOnFirestore("addresses", [
-      ...store.user.addresses,
-      store.user.address
-    ]);
+    userSetOnFirestore({
+      ...store.user,
+      addresses: [...store.user.addresses, store.user.newAddress],
+      newAddress: {},
+    });
   };
 
   /**
    * Order actions
    */
 
-  const orderOnFirestoreChange = orderOnFirebase => {
+  const orderOnFirestoreChange = (orderOnFirebase) => {
+    console.log("--orderOnFirestoreChange");
     if (orderOnFirebase) {
+      console.log("--orderOnFirestoreChange-if");
+      console.log("--orderOnFirebase", orderOnFirebase);
       updateProperty("order", orderOnFirebase);
     }
   };
 
-  const orderSetRecipient = recipient => {
-    updateProperty("order", { ...store.order, recipient });
+  const orderSetDestinationProperty = ({ target }) => {
+    updateProperty("order", {
+      ...store.order,
+      destination: {
+        ...store.order.destination,
+        [target.name]: target.value || target.checked,
+      },
+    });
+  };
+
+  const orderSetDestinationAddress = ({ target }) => {
+    const address = store.user.addresses[target.value];
+
+    updateProperty("order", {
+      ...store.order,
+      destination: {
+        ...store.order.destination,
+        addressIndex: target.value,
+        address: address
+          ? address
+          : initialStateStore.order.destination.address,
+      },
+    });
+  };
+
+  const orderSetDestinationAddressProperty = ({ target }) => {
+    if (store.order.destination.addressIndex === -1) {
+      updateProperty("order", {
+        ...store.order,
+        destination: {
+          ...store.order.destination,
+          address: {
+            ...store.order.destination.address,
+            [target.name]: target.value,
+          },
+        },
+      });
+    }
   };
 
   const orderCreateOnFirestore = () => {
+    const { email, phone } = store.user;
+    const order = {
+      ...store.order,
+      items: store.cart.items,
+      number: getOrderNumber(new Date()),
+      status: ORDER_STATUS_PENDING,
+      user: {
+        email,
+        phone,
+      },
+    };
+
+    setTimeout(() => {
+      firebase.setV2({
+        path: "orders",
+        document: order.idempotencyToken,
+        data: {
+          ...order,
+          status: ORDER_STATUS_REQUESTED,
+        },
+      });
+
+      const orders = { ...store.user.orders, [order.idempotencyToken]: order };
+      const addresses =
+        order.destination.addressIndex !== -1
+          ? store.user.addresses
+          : [...store.user.addresses, order.destination.address];
+      firebase.setV2({
+        path: "users",
+        document: store.user.id,
+        data: {
+          ...store.user,
+          addresses,
+          orders,
+        },
+      });
+    }, 3000);
+
     updateStoreAndLocalStorage({
       ...store,
-      order: {
-        ...store.order,
-        items: store.cart.items,
-        number: getOrderNumber(new Date()),
-        status: ORDER_STATUS_PENDING
-      },
+      order,
       layout: {
         ...store.layout,
         cartOpen: false,
-        deliveryPriceReminderOpen: false
-      }
+        deliveryPriceReminderOpen: false,
+      },
     });
-
-    // const pointEntries = [
-    //   {
-    //     points: getTotalPoints(store.cart.items),
-    //     created: firebase.getServerTimestamp()
-    //   }
-    // ];
-
-    setTimeout(() => {
-      firebase.set({
-        path: "orders",
-        document: store.order.idempotencyToken,
-        data: {
-          ...store.order,
-          created: new Date("2020-03-20"),
-          status: ORDER_STATUS_REQUESTED
-        }
-      });
-    }, 3000);
   };
 
   const orderReset = () => {
     updateStoreAndLocalStorage({
       ...store,
-      order: {
-        ...getInitialStateOrder(),
-        // TODO: remove this hack when having a logged user
-        recipient: store.order.recipient
-      },
-      cart: initialStateStore.cart
+      order: getInitialStateOrder(),
+      cart: initialStateStore.cart,
     });
   };
 
-  const orderSetRating = rating => {
+  const orderSetRating = (rating) => {
     firebase.set({
       path: "orders",
       document: store.order.idempotencyToken,
       data: {
         ...store.order,
-        rating
-      }
+        rating,
+      },
     });
   };
 
-  const orderSetComments = comments => {
+  const orderSetComments = (comments) => {
     updateProperty("order", { ...store.order, comments });
   };
 
@@ -209,7 +296,7 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
     firebase.set({
       path: "orders",
       document: store.order.idempotencyToken,
-      data: store.order
+      data: store.order,
     });
   };
 
@@ -217,25 +304,27 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
    * Layout actions
    */
 
-  const layoutSetOutsideServiceHoursNoticeOpen = outsideServiceHoursNoticeOpen => {
+  const layoutSetOutsideServiceHoursNoticeOpen = (
+    outsideServiceHoursNoticeOpen
+  ) => {
     updateProperty("layout", {
       ...store.layout,
-      outsideServiceHoursNoticeOpen
+      outsideServiceHoursNoticeOpen,
     });
   };
 
-  const layoutSetDeliveryPriceReminderOpen = deliveryPriceReminderOpen => {
+  const layoutSetDeliveryPriceReminderOpen = (deliveryPriceReminderOpen) => {
     updateProperty("layout", { ...store.layout, deliveryPriceReminderOpen });
   };
 
-  const layoutSetSectionNumber = sectionNumber => {
+  const layoutSetSectionNumber = (sectionNumber) => {
     updateProperty("layout", { ...store.layout, sectionNumber });
   };
 
   const layoutSetCartOpen = () => {
     updateProperty("layout", {
       ...store.layout,
-      cartOpen: store.cart.items.length > 0
+      cartOpen: store.cart.items.length > 0,
     });
   };
 
@@ -259,47 +348,49 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
     updateProperty("cart", initialStateStore.cart);
   };
 
-  const cartRemoveItem = itemToRemove => {
-    const items = store.cart.items.filter(item => item.id !== itemToRemove.id);
+  const cartRemoveItem = (itemToRemove) => () => {
+    const items = store.cart.items.filter(
+      (item) => item.id !== itemToRemove.id
+    );
 
     updateStoreAndLocalStorage({
       ...store,
       cart: {
         ...store.cart,
-        items
+        items,
       },
       layout: {
         ...store.layout,
-        cartOpen: items.length > 0
-      }
+        cartOpen: items.length > 0,
+      },
     });
   };
 
-  const cartSetCustomizingItem = cartItem => {
+  const cartSetCustomizingItem = (cartItem) => {
     updateProperty("cart", {
       ...store.cart,
-      customizingItem: cartItem
+      customizingItem: cartItem,
     });
   };
 
-  const cartUpsertItem = cartItem => {
+  const cartUpsertItem = (cartItem) => {
     if (!cartItem.id) {
       const newCartItem = { ...cartItem, id: getCartItemId() };
 
       updateProperty("cart", {
         ...store.cart,
         items: [...store.cart.items, newCartItem],
-        customizingItem: null
+        customizingItem: null,
       });
     } else {
       const itemsExceptUpdated = store.cart.items.filter(
-        item => item.id !== cartItem.id
+        (item) => item.id !== cartItem.id
       );
 
       updateProperty("cart", {
         ...store.cart,
         items: [...itemsExceptUpdated, cartItem],
-        customizingItem: null
+        customizingItem: null,
       });
     }
   };
@@ -322,10 +413,12 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
     orderReset,
     orderSetRating,
     orderSetComments,
-    orderSetRecipient,
     orderLocalToFirestore,
     orderOnFirestoreChange,
     orderCreateOnFirestore,
+    orderSetDestinationAddress,
+    orderSetDestinationProperty,
+    orderSetDestinationAddressProperty,
 
     layoutSetUserOpen,
     layoutSetCartOpen,
@@ -333,6 +426,6 @@ export const getStoreAndActions = ({ storeAndSetStore, firebase }) => {
     layoutSetCartClose,
     layoutSetSectionNumber,
     layoutSetDeliveryPriceReminderOpen,
-    layoutSetOutsideServiceHoursNoticeOpen
+    layoutSetOutsideServiceHoursNoticeOpen,
   };
 };

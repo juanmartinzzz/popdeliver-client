@@ -7,20 +7,28 @@ import ConfirmationButton from "./ConfirmationButton";
 import { DialogTransition } from "../components";
 import { DialogPaper } from "../UI/FullscreenDialog/components";
 import DeliveryNotice from "./DeliveryNotices/DeliveryNotice";
-import Recipient from "./Recipient";
+import UserAndAddress from "./UserAndAddress";
+import Totals from "./Items/Totals";
+import Destination from "./Destination";
 
 const Cart = ({ handleConfirmCart, storeAndActions }) => (
   <Dialog open fullScreen TransitionComponent={DialogTransition}>
     <Header
       title="Carrito"
       onCloseButtonClick={storeAndActions.layoutSetCartClose}
-      hideCloseButton={storeAndActions.store.order.status}
     />
 
     <Content>
       <Items storeAndActions={storeAndActions} />
 
-      <Recipient storeAndActions={storeAndActions} />
+      <Totals storeAndActions={storeAndActions} />
+
+      <UserAndAddress storeAndActions={storeAndActions} />
+
+      <br />
+      <br />
+
+      <Destination storeAndActions={storeAndActions} />
 
       <DialogPaper>
         <DeliveryNotice />
