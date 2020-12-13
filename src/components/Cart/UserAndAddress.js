@@ -11,6 +11,37 @@ const UserAndAddress = ({ storeAndActions }) => {
   const { order, user } = storeAndActions.store;
   const { address, addressIndex } = order.destination;
 
+  const inputs = [
+    {
+      name: "nickname",
+      icon: <Label />,
+      value: address.nickname,
+      label: "Apodo para esta dirección de envío",
+      onChange: storeAndActions.orderSetDestinationAddressProperty,
+    },
+    {
+      name: "recipient",
+      icon: <Person />,
+      value: address.recipient,
+      label: "Quién recibirá el pedido",
+      onChange: storeAndActions.orderSetDestinationAddressProperty,
+    },
+    {
+      name: "directions",
+      icon: <Home />,
+      label: "Dirección",
+      value: address.directions,
+      onChange: storeAndActions.orderSetDestinationAddressProperty,
+    },
+    {
+      name: "locality",
+      icon: <Explore />,
+      label: "Barrio, conjunto",
+      value: address.locality,
+      onChange: storeAndActions.orderSetDestinationAddressProperty,
+    },
+  ];
+
   return (
     <Fragment>
       <FormFields
@@ -22,7 +53,7 @@ const UserAndAddress = ({ storeAndActions }) => {
             value: user.email,
             note: "No enviamos Spam ni damos tu correo a terceros.",
             onChange: storeAndActions.userSetProperty,
-            onBlur: storeAndActions.userGetFromFirestore
+            onBlur: storeAndActions.userGetFromFirestore,
           },
           {
             name: "phone",
@@ -31,7 +62,7 @@ const UserAndAddress = ({ storeAndActions }) => {
             value: user.phone,
             note: "Te avisamos por WhatsApp sobre el estado de tu Órden.",
             onChange: storeAndActions.userSetProperty,
-            onBlur: storeAndActions.userGetFromFirestore
+            onBlur: storeAndActions.userGetFromFirestore,
           },
           {
             name: "addressIndex",
@@ -41,39 +72,12 @@ const UserAndAddress = ({ storeAndActions }) => {
             options: user.addresses
               .map(({ directions, locality, nickname, recipient }, index) => ({
                 value: index,
-                content: `${nickname}: ${directions}, ${locality} (recibe ${recipient})`
+                content: `${nickname}: ${directions}, ${locality} (recibe ${recipient})`,
               }))
               .concat([{ value: -1, content: "Dirección nueva" }]),
-            onChange: storeAndActions.orderSetDestinationAddress
+            onChange: storeAndActions.orderSetDestinationAddress,
           },
-          {
-            name: "nickname",
-            icon: <Label />,
-            value: address.nickname,
-            label: "Apodo para esta dirección de envío",
-            onChange: storeAndActions.orderSetDestinationAddressProperty
-          },
-          {
-            name: "recipient",
-            icon: <Person />,
-            value: address.recipient,
-            label: "Quién recibirá el pedido",
-            onChange: storeAndActions.orderSetDestinationAddressProperty
-          },
-          {
-            name: "directions",
-            icon: <Home />,
-            label: "Dirección",
-            value: address.directions,
-            onChange: storeAndActions.orderSetDestinationAddressProperty
-          },
-          {
-            name: "locality",
-            icon: <Explore />,
-            label: "Barrio, conjunto",
-            value: address.locality,
-            onChange: storeAndActions.orderSetDestinationAddressProperty
-          }
+          ...(addressIndex === -1 ? [...inputs] : []),
         ]}
       />
     </Fragment>

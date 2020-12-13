@@ -4,7 +4,7 @@ import {
   TableRow,
   TableCell,
   Table,
-  TableBody
+  TableBody,
 } from "@material-ui/core";
 import Edit from "@material-ui/icons/Edit";
 import Delete from "@material-ui/icons/Delete";
@@ -18,8 +18,8 @@ const Item = ({ item, storeAndActions }) => (
     <Table size="small">
       <TableBody>
         {[item.main, ...item.extras]
-          .filter(variant => variant)
-          .map(variant => (
+          .filter((variant) => variant)
+          .map((variant) => (
             <TableRow key={variant.id}>
               <TableCell>
                 <BasicInfo>
@@ -47,7 +47,7 @@ const Item = ({ item, storeAndActions }) => (
               </IconButton>
               <IconButton
                 size="small"
-                onClick={() => storeAndActions.removeItem(item)}
+                onClick={storeAndActions.cartRemoveItem(item)}
               >
                 <Delete />
               </IconButton>
